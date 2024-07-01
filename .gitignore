@@ -1,0 +1,8 @@
+.env
+
+# dependencies
+/node_modules
+
+# typescript
+*.tsbuildinfo
+combined.log
