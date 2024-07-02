@@ -16,7 +16,7 @@ Cette API gère les commandes pour un système de e-commerce. Elle permet de cr�
 
 1. Clonez le dépôt :
    ```
-   git clone [URL_DU_REPO]
+   https://github.com/Gleen99/Api-Orders
    ```
 
 2. Installez les dépendances :
@@ -26,10 +26,8 @@ Cette API gère les commandes pour un système de e-commerce. Elle permet de cr�
 
 3. Configurez les variables d'environnement dans un fichier `.env` :
    ```
-   PORT=3000
-   MONGODB_URI=mongodb://localhost:27017/orders
-   RABBITMQ_URL=amqp://localhost
-   ```
+   PORT=18301
+
 
 4. Démarrez le serveur :
    ```
@@ -134,7 +132,7 @@ A compléter
 
 La documentation Swagger de l'API est disponible à l'adresse :
 ```
-http://localhost:3000/v1/docs
+http://localhost:3000/v1/orders/docs
 ```
 
 ## Gestion des Erreurs

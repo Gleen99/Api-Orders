@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
+import swaggerUI from 'swagger-ui-express';
+import swaggerSpec from './swagger';
 import { rabbitMQClient } from './rabbitmq';
 import express, { Express, Request, Response, NextFunction } from 'express';
 import ordersRoutes from "./src/routes/OrdersRoutes";
-import { initGetCustomerOrdersConsumer } from "./src/services/productServices";
+import { setupOrderService} from "./src/services/OrderServices";
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import winston from 'winston';
@@ -44,10 +46,13 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Définissez l'URL de base de votre API
-const API_BASE_PATH = '/v1';
+const API_BASE_PATH = '/api/v1';
 
 // Routes
 app.use(`${API_BASE_PATH}/orders`, ordersRoutes);
+
+// Route pour la documentation Swagger
+app.use(`${API_BASE_PATH}/docs`, swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 
 // Gestion des erreurs sécurisée
@@ -58,57 +63,45 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         error: process.env.NODE_ENV === 'production' ? {} : err.message
     });
 });
-
-// Fonction pour initialiser les connexions et les consommateurs
-const initializeServices = async () => {
+//Connection mongo
+const connectToMongoDB = async () => {
     try {
-        // Connexion à MongoDB
-        await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/orders');
+        await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/orders');
         logger.info('Connecté à MongoDB');
-
-        // Connexion à RabbitMQ
-        await rabbitMQClient.connect();
-        logger.info('Connecté à RabbitMQ');
-
-        // Initialiser le consommateur pour les requêtes de commandes clients
-        await initGetCustomerOrdersConsumer();
-        logger.info('Consommateur de commandes clients initialisé');
-
     } catch (error) {
-        logger.error('Erreur lors de l\'initialisation des services:', error);
+        logger.error('Erreur de connexion à MongoDB:', error);
         throw error;
     }
 };
-
-// Fonction pour démarrer le serveur
-const startServer = async () => {
+//Connection RabbitMQ
+const setupRabbitMQ = async () => {
     try {
-        await initializeServices();
+        await rabbitMQClient.connect();
+        await rabbitMQClient.setup();
+        logger.info('Connecté à RabbitMQ');
+    } catch (error) {
+        logger.error('Erreur de connexion à RabbitMQ:', error);
+        throw error;
+    }
+};
+const startServer = async (port: number) => {
+    try {
+        await connectToMongoDB();
+        await setupRabbitMQ();
+        await setupOrderService();
+        logger.info('Consommateur de commandes clients initialisé');
 
-        const PORT = 18301;
-        const server = app.listen(PORT, () => {
-            logger.info(`Serveur démarré sur le port ${PORT}`);
+        app.listen(port, () => {
+            logger.info(`Serveur démarré sur le port ${port}`);
+        }).on('error', (err: NodeJS.ErrnoException) => {
+            if (err.code === 'EADDRINUSE') {
+                logger.error(`Le port ${port} est déjà utilisé.`);
+                process.exit(1);
+            } else {
+                logger.error('Erreur lors du démarrage du serveur:', err);
+                process.exit(1);
+            }
         });
-
-        // Gestion de l'arrêt propre
-        const gracefulShutdown = async () => {
-            logger.info('Arrêt du serveur...');
-            server.close(async () => {
-                try {
-                    await mongoose.connection.close();
-                    await rabbitMQClient.closeConnection();
-                    logger.info('Connexions fermées proprement');
-                    process.exit(0);
-                } catch (error) {
-                    logger.error('Erreur lors de la fermeture des connexions:', error);
-                    process.exit(1);
-                }
-            });
-        };
-
-        process.on('SIGINT', gracefulShutdown);
-        process.on('SIGTERM', gracefulShutdown);
-
     } catch (error) {
         logger.error('Erreur lors du démarrage du serveur:', error);
         process.exit(1);
@@ -123,6 +116,6 @@ mongoose.connection.on('error', err => {
 mongoose.connection.on('disconnected', () => {
     logger.info('Connexion à MongoDB interrompue');
 });
-
+const PORT = parseInt(process.env.PORT || '18301');
 // Démarrage du serveur
-startServer();
+startServer(PORT);

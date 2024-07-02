@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Order, { IOrder, IProduct } from "../models/orders/OrdersModels";
 import { OrderStatus } from "../enums/orderEnums";
-import { addProductsToOrder, removeProductsFromOrder, updateOrderStatus } from "../services/productServices";
+import { addProductsToOrder, removeProductsFromOrder, updateOrderStatus } from "../services/OrderServices";
 import {validateUpdateOrder} from "../validator/validationOrders";
 
 export const updateOrder = async (req: Request, res: Response) => {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Order, { IOrder, IProduct } from "../models/orders/OrdersModels";
-import { getProductDetails } from "../services/productServices";
+import { getProductDetails } from "../services/OrderServices";
 import { validateCreateOrderParams } from "../validator/validationOrders";
 import { rabbitMQClient } from "../../rabbitmq"; // Assurez-vous que ce chemin est correct
 
@@ -8,10 +8,10 @@ export const createOrder = async (req: Request, res: Response) => {
     const { customerId, productIds } = req.params;
 
     // Validation des paramètres
-    const { error } = validateCreateOrderParams(req.body);
-    if (error) {
-        return res.status(400).json({ message: error.details.map(d => d.message) });
-    }
+    // const { error } = validateCreateOrderParams(req.body);
+    // if (error) {
+    //     return res.status(400).json({ message: error.details.map(d => d.message) });
+    // }
 
     // Séparer les productIds et filtrer les valeurs vides
     const productIdsArray = productIds.split(',').filter(id => id.trim() !== '');
