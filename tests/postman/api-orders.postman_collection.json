@@ -1,212 +1,156 @@
 {
   "info": {
-    "_postman_id": "unique-id-here",
-    "name": "API de Gestion des Commandes",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "name": "API Orders",
+    "description": "Collection de requêtes pour tester l'API Orders",
+    "_postman_id": "YOUR_POSTMAN_COLLECTION_ID"
   },
   "item": [
     {
       "name": "Récupérer toutes les commandes",
       "request": {
         "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3000/api/orders",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3000",
-          "path": [
-            "api",
-            "orders"
-          ]
-        }
-      },
-      "response": []
+        "url": "http://localhost:18301/api/orders"
+      }
     },
     {
-      "name": "Récupérer une commande spécifique",
+      "name": "Récupérer une commande",
       "request": {
         "method": "GET",
-        "header": [],
         "url": {
-          "raw": "http://localhost:3000/api/orders/:id",
-          "protocol": "http",
+          "raw": "http://localhost:18301/api/orders/{{orderId}}",
           "host": [
-            "localhost"
+            "http://localhost:18301"
           ],
-          "port": "3000",
           "path": [
             "api",
             "orders",
-            ":id"
-          ],
-          "variable": [
-            {
-              "key": "id",
-              "value": "order_id_here"
-            }
+            "{{orderId}}"
           ]
         }
-      },
-      "response": []
+      }
     },
     {
-      "name": "Créer une nouvelle commande",
+      "name": "Créer une commande",
       "request": {
         "method": "POST",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3000/api/orders/:customerId/:productIds",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3000",
-          "path": [
-            "api",
-            "orders",
-            ":customerId",
-            ":productIds"
-          ],
-          "variable": [
-            {
-              "key": "customerId",
-              "value": "customer_id_here"
-            },
-            {
-              "key": "productIds",
-              "value": "product_id1,product_id2"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Mettre à jour une commande",
-      "request": {
-        "method": "PUT",
-        "header": [],
+        "url": "http://localhost:18301/api/orders",
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"action\": \"add\",\n    \"productIds\": [\"product_id_here\"],\n    \"status\": \"pending\"\n}",
+          "raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"products\": [\n        {\n            \"productId\": \"{{productId}}\",\n            \"quantity\": 2\n        }\n    ],\n    \"status\": \"pending\"\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
-        },
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.environment.set(\"orderId\", jsonData._id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mettre à jour une commande",
+      "request": {
+        "method": "PUT",
         "url": {
-          "raw": "http://localhost:3000/api/orders/:orderId",
-          "protocol": "http",
+          "raw": "http://localhost:18301/api/orders/{{orderId}}",
           "host": [
-            "localhost"
+            "http://localhost:18301"
           ],
-          "port": "3000",
           "path": [
             "api",
             "orders",
-            ":orderId"
-          ],
-          "variable": [
-            {
-              "key": "orderId",
-              "value": "order_id_here"
-            }
+            "{{orderId}}"
           ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"status\": \"shipped\",\n    \"products\": [\n        {\n            \"productId\": \"{{productId}}\",\n            \"quantity\": 3\n        }\n    ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         }
-      },
-      "response": []
+      }
     },
     {
       "name": "Supprimer une commande",
       "request": {
         "method": "DELETE",
-        "header": [],
         "url": {
-          "raw": "http://localhost:3000/api/orders/:orderId",
-          "protocol": "http",
+          "raw": "http://localhost:18301/api/orders/{{orderId}}",
           "host": [
-            "localhost"
+            "http://localhost:18301"
           ],
-          "port": "3000",
           "path": [
             "api",
             "orders",
-            ":orderId"
-          ],
-          "variable": [
-            {
-              "key": "orderId",
-              "value": "order_id_here"
-            }
+            "{{orderId}}"
           ]
         }
-      },
-      "response": []
+      }
     },
     {
-      "name": "Récupérer tous les produits d'une commande",
+      "name": "Récupérer les produits d'une commande",
       "request": {
         "method": "GET",
-        "header": [],
         "url": {
-          "raw": "http://localhost:3000/api/orders/:id/products",
-          "protocol": "http",
+          "raw": "http://localhost:18301/api/orders/{{orderId}}/products",
           "host": [
-            "localhost"
+            "http://localhost:18301"
           ],
-          "port": "3000",
           "path": [
             "api",
             "orders",
-            ":id",
+            "{{orderId}}",
             "products"
-          ],
-          "variable": [
-            {
-              "key": "id",
-              "value": "order_id_here"
-            }
           ]
         }
-      },
-      "response": []
+      }
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
     },
     {
-      "name": "Récupérer un produit spécifique d'une commande",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3000/api/orders/:id/products/:productId",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3000",
-          "path": [
-            "api",
-            "orders",
-            ":id",
-            "products",
-            ":productId"
-          ],
-          "variable": [
-            {
-              "key": "id",
-              "value": "order_id_here"
-            },
-            {
-              "key": "productId",
-              "value": "product_id_here"
-            }
-          ]
-        }
-      },
-      "response": []
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "customerId",
+      "value": ""
+    },
+    {
+      "key": "productId",
+      "value": ""
     }
   ]
 }
