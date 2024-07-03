@@ -11,10 +11,78 @@ const router = express.Router();
 
 /**
  * @swagger
- * /:
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Order:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         customerId:
+ *           type: string
+ *         products:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Product'
+ *         status:
+ *           type: string
+ *           enum: [in_cart, pending, paid, shipped, delivered, cancelled]
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *     Product:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         price:
+ *           type: number
+ *         category:
+ *           type: string
+ *         stock:
+ *           type: integer
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         orderId:
+ *           type: string
+ *       required:
+ *         - name
+ *         - description
+ *         - price
+ *         - category
+ *     OrderUpdate:
+ *       type: object
+ *       properties:
+ *         action:
+ *           type: string
+ *           enum: [add, remove, updateStatus]
+ *         productIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *         status:
+ *           type: string
+ *           enum: [in_cart, pending, paid, shipped, delivered, cancelled]
+ */
+
+/**
+ * @swagger
+ * /orders:
  *   get:
  *     summary: Récupérer toutes les commandes
  *     tags: [Commandes]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Liste des commandes récupérée avec succès
@@ -29,10 +97,12 @@ router.get('/', getOrders);
 
 /**
  * @swagger
- * /{id}:
+ * /orders/{id}:
  *   get:
  *     summary: Récupérer une commande spécifique
  *     tags: [Commandes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -53,10 +123,12 @@ router.get('/:id', getOrder);
 
 /**
  * @swagger
- * /{customerId}/{productIds}:
+ * /orders/{customerId}/{productIds}:
  *   post:
  *     summary: Créer une nouvelle commande
  *     tags: [Commandes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: customerId
@@ -80,10 +152,12 @@ router.post('/:customerId/:productIds', createOrder);
 
 /**
  * @swagger
- * /{orderId}:
+ * /orders/{orderId}:
  *   put:
  *     summary: Mettre à jour une commande
  *     tags: [Commandes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: orderId
@@ -110,10 +184,12 @@ router.put('/:orderId', updateOrder);
 
 /**
  * @swagger
- * /{orderId}:
+ * /orders/{orderId}:
  *   delete:
  *     summary: Supprimer une commande
  *     tags: [Commandes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: orderId
@@ -130,10 +206,12 @@ router.delete('/:orderId', deleteOrder);
 
 /**
  * @swagger
- * /{id}/products:
+ * /orders/{id}/products:
  *   get:
  *     summary: Récupérer tous les produits d'une commande
  *     tags: [Produits]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -156,10 +234,12 @@ router.get('/:id/products', getOrderProducts);
 
 /**
  * @swagger
- * /{id}/products/{productId}:
+ * /orders/{id}/products/{productId}:
  *   get:
  *     summary: Récupérer un produit spécifique d'une commande
  *     tags: [Produits]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -184,62 +264,3 @@ router.get('/:id/products', getOrderProducts);
 router.get('/:id/products/:productId', getOrderProduct);
 
 export default router;
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     Order:
- *       type: object
- *       properties:
- *         _id:
- *           type: string
- *         customerId:
- *           type: string
- *         products:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/Product'
- *         status:
- *           type: string
- *           enum: [in_cart, pending, paid, shipped, delivered, cancelled]
- *         createdAt:
- *           type: string
- *           format: date-time
- *     Product:
- *       type: object
- *       properties:
- *         _id:
- *           type: string
- *         name:
- *           type: string
- *         details:
- *           type: object
- *           properties:
- *             price:
- *               type: string
- *             description:
- *               type: string
- *             color:
- *               type: string
- *         stock:
- *           type: integer
- *         createdAt:
- *           type: string
- *           format: date-time
- *         orderId:
- *           type: string
- *     OrderUpdate:
- *       type: object
- *       properties:
- *         action:
- *           type: string
- *           enum: [add, remove, updateStatus]
- *         productIds:
- *           type: array
- *           items:
- *             type: string
- *         status:
- *           type: string
- *           enum: [in_cart, pending, paid, shipped, delivered]
- */

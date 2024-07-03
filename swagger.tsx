@@ -1,4 +1,4 @@
-import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerJSDoc from 'swagger-jsdoc';
 
 const swaggerDefinition = {
     openapi: '3.0.0',
@@ -9,7 +9,7 @@ const swaggerDefinition = {
     },
     servers: [
         {
-            url: 'http://v1/orders',
+            url: 'http://localhost:17301/api/v1',
             description: 'Serveur de développement',
         }
     ],
@@ -72,14 +72,24 @@ const swaggerDefinition = {
                 required: ['name', 'description', 'price', 'category']
             }
         }
-    }
+    },
+    securitySchemes: {
+        ApiKeyAuth: {
+            type: 'apiKey',
+            in: 'header',
+            name: 'X-API-Key'
+        }
+    },
+    security: [{
+        ApiKeyAuth: []
+    }]
 };
 
-const options: swaggerJsdoc.Options = {
+const options: swaggerJSDoc.Options = {
     swaggerDefinition,
-    apis: ['./src/routes/*.ts'] // Changé de .tsx à .ts
+    apis: ['./src/routes/*.tsx']
 };
 
-const swaggerSpec = swaggerJsdoc(options);
+const swaggerSpec = swaggerJSDoc(options);
 
 export default swaggerSpec;

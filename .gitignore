@@ -6,3 +6,4 @@
 # typescript
 *.tsbuildinfo
 combined.log
+.idea
