@@ -304,3 +304,7 @@
 {"level":"info","message":"Consommateur de commandes clients initialisé","timestamp":"2024-07-03T20:13:21.311Z"}
 {"level":"info","message":"Serveur démarré sur le port 18301","timestamp":"2024-07-03T20:13:21.315Z"}
 {"level":"warn","message":"Tentative d'accès non autorisé avec la clé API: undefined","timestamp":"2024-07-03T20:14:12.549Z"}
+{"level":"info","message":"Connecté à MongoDB","timestamp":"2024-07-03T23:38:18.182Z"}
+{"level":"info","message":"Connecté à RabbitMQ","timestamp":"2024-07-03T23:38:18.468Z"}
+{"level":"info","message":"Consommateur de commandes clients initialisé","timestamp":"2024-07-03T23:38:18.989Z"}
+{"level":"info","message":"Serveur démarré sur le port 18301","timestamp":"2024-07-03T23:38:18.999Z"}
