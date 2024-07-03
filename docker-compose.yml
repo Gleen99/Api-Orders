@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nodejs_app_orders
+    ports:
+      - "4000:3000"
+    depends_on:
+      - mongo-orders
+
+  mongo-orders:
+    image: mongo:latest
+    container_name: mongo_db_orders
+    ports:
+      - "27020:27017"
+    volumes:
+      - mongo-data-orders:/data/db
+
+volumes:
+  mongo-data-orders:
