@@ -4,7 +4,7 @@ import swaggerSpec from './swagger';
 import { rabbitMQClient } from './rabbitmq';
 import express, { Express, Request, Response, NextFunction } from 'express';
 import ordersRoutes from "./src/routes/OrdersRoutes";
-import { setupOrderService} from "./src/services/OrderServices";
+import { setupOrderService } from "./src/services/OrderServices";
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import winston from 'winston';
@@ -48,12 +48,27 @@ app.use(limiter);
 // Définissez l'URL de base de votre API
 const API_BASE_PATH = '/api/v1';
 
-// Routes
-app.use(`${API_BASE_PATH}/orders`, ordersRoutes);
+// Fonction de validation de la clé API
+const isValidApiKey = (apiKey: string): boolean => {
+    const validApiKeys = ['key1', 'key2', 'key3']; // Exemple simplifié
+    return validApiKeys.includes(apiKey);
+};
+
+// Middleware de validation de la clé API
+const validateApiKey = (req: Request, res: Response, next: NextFunction) => {
+    const apiKey = req.header('X-API-Key');
+    if (!apiKey || !isValidApiKey(apiKey)) {
+        logger.warn(`Tentative d'accès non autorisé avec la clé API: ${apiKey}`);
+        return res.status(401).json({ error: 'Invalid API key' });
+    }
+    next();
+};
+
+// Routes protégées par la clé API
+app.use(`${API_BASE_PATH}/orders`, validateApiKey, ordersRoutes);
 
 // Route pour la documentation Swagger
 app.use(`${API_BASE_PATH}/docs`, swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-
 
 // Gestion des erreurs sécurisée
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -63,7 +78,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         error: process.env.NODE_ENV === 'production' ? {} : err.message
     });
 });
-//Connection mongo
+
+// Connection MongoDB
 const connectToMongoDB = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/orders');
@@ -73,7 +89,8 @@ const connectToMongoDB = async () => {
         throw error;
     }
 };
-//Connection RabbitMQ
+
+// Connection RabbitMQ
 const setupRabbitMQ = async () => {
     try {
         await rabbitMQClient.connect();
@@ -84,6 +101,7 @@ const setupRabbitMQ = async () => {
         throw error;
     }
 };
+
 const startServer = async (port: number) => {
     try {
         await connectToMongoDB();
@@ -116,6 +134,16 @@ mongoose.connection.on('error', err => {
 mongoose.connection.on('disconnected', () => {
     logger.info('Connexion à MongoDB interrompue');
 });
+
 const PORT = parseInt(process.env.PORT || '18301');
+
 // Démarrage du serveur
 startServer(PORT);
+
+// Gestion de l'arrêt propre du serveur
+process.on('SIGINT', async () => {
+    logger.info('Arrêt du serveur...');
+    await mongoose.disconnect();
+    await rabbitMQClient.closeConnection();
+    process.exit(0);
+});

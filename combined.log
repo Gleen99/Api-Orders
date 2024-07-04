@@ -308,3 +308,27 @@
 {"level":"info","message":"Connecté à RabbitMQ","timestamp":"2024-07-03T23:38:18.468Z"}
 {"level":"info","message":"Consommateur de commandes clients initialisé","timestamp":"2024-07-03T23:38:18.989Z"}
 {"level":"info","message":"Serveur démarré sur le port 18301","timestamp":"2024-07-03T23:38:18.999Z"}
+{"level":"info","message":"Connecté à MongoDB","timestamp":"2024-07-04T00:26:38.653Z"}
+{"level":"info","message":"Connecté à RabbitMQ","timestamp":"2024-07-04T00:26:38.943Z"}
+{"level":"info","message":"Consommateur de commandes clients initialisé","timestamp":"2024-07-04T00:26:39.510Z"}
+{"level":"info","message":"Serveur démarré sur le port 18301","timestamp":"2024-07-04T00:26:39.515Z"}
+{"level":"info","message":"Connecté à MongoDB","timestamp":"2024-07-04T00:27:32.623Z"}
+{"level":"info","message":"Connecté à RabbitMQ","timestamp":"2024-07-04T00:27:32.919Z"}
+{"level":"info","message":"Connexion à MongoDB interrompue","timestamp":"2024-07-04T00:27:33.476Z"}
+{"level":"info","message":"Consommateur de commandes clients initialisé","timestamp":"2024-07-04T00:27:33.549Z"}
+{"level":"info","message":"Connecté à MongoDB","timestamp":"2024-07-04T00:29:16.913Z"}
+{"level":"info","message":"Connecté à RabbitMQ","timestamp":"2024-07-04T00:29:17.300Z"}
+{"level":"info","message":"Consommateur de commandes clients initialisé","timestamp":"2024-07-04T00:29:17.921Z"}
+{"level":"info","message":"Serveur démarré sur le port 18301","timestamp":"2024-07-04T00:29:17.924Z"}
+{"level":"info","message":"Connecté à MongoDB","timestamp":"2024-07-04T00:31:16.684Z"}
+{"level":"info","message":"Connecté à RabbitMQ","timestamp":"2024-07-04T00:31:16.969Z"}
+{"level":"info","message":"Consommateur de commandes clients initialisé","timestamp":"2024-07-04T00:31:17.493Z"}
+{"level":"info","message":"Serveur démarré sur le port 18301","timestamp":"2024-07-04T00:31:17.499Z"}
+{"level":"info","message":"Connecté à MongoDB","timestamp":"2024-07-04T01:02:25.639Z"}
+{"level":"info","message":"Connecté à RabbitMQ","timestamp":"2024-07-04T01:02:25.967Z"}
+{"level":"info","message":"Consommateur de commandes clients initialisé","timestamp":"2024-07-04T01:02:26.523Z"}
+{"level":"info","message":"Serveur démarré sur le port 18301","timestamp":"2024-07-04T01:02:26.536Z"}
+{"level":"info","message":"Connecté à MongoDB","timestamp":"2024-07-04T08:04:40.918Z"}
+{"level":"info","message":"Connecté à RabbitMQ","timestamp":"2024-07-04T08:04:41.197Z"}
+{"level":"info","message":"Consommateur de commandes clients initialisé","timestamp":"2024-07-04T08:04:41.706Z"}
+{"level":"info","message":"Serveur démarré sur le port 18301","timestamp":"2024-07-04T08:04:41.713Z"}
