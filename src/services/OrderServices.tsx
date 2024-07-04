@@ -4,44 +4,48 @@ import { rabbitMQClient } from "../../rabbitmq";
 import amqp from "amqplib";
 import { OrderStatus } from "../enums/orderEnums";
 
+// Fonction pour récupérer les détails des orders
+export async function fetchProductDetails(orderIds: string[]): Promise<IOrder[]> {
+    try {
+        const orders = await Order.find({ _id: { $in: orderIds } });
+
+        return orders;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des orders depuis la base de données:', error);
+        throw error;
+    }
+}
+
 // Fonction pour obtenir les détails des produits
 export async function getProductDetails(productIds: string[]): Promise<IProduct[]> {
     const correlationId = new Types.ObjectId().toString();
     const responseQueue = `products_details_response_${correlationId}`;
 
     console.log(`Demande de détails pour les produits: ${productIds.join(', ')}`);
-    console.log(`CorrelationId généré: ${correlationId}`);
 
     return new Promise<IProduct[]>((resolve, reject) => {
         const timeout = setTimeout(() => {
-            console.log('Timeout atteint pour la requête de détails des produits');
             rabbitMQClient.removeListener(responseQueue);
             reject(new Error('Timeout en attendant la réponse des détails des produits'));
         }, 30000);
 
         rabbitMQClient.consumeMessage(responseQueue, async (msg: amqp.ConsumeMessage | null) => {
-            if (!msg) return;
-
             clearTimeout(timeout);
-            rabbitMQClient.removeListener(responseQueue);
-
-            try {
-                const productsDetails: IProduct[] = JSON.parse(msg.content.toString());
-                console.log('Détails des produits reçus:', productsDetails);
-                resolve(productsDetails);
-            } catch (error) {
-                console.error('Erreur lors du parsing des détails des produits:', error);
-                reject(new Error('Erreur lors du parsing des détails des produits'));
+            if (msg) {
+                try {
+                    const productsDetails: IProduct[] = JSON.parse(msg.content.toString());
+                    resolve(productsDetails);
+                } catch (error) {
+                    reject(new Error('Erreur lors du parsing des détails des produits'));
+                } finally {
+                    rabbitMQClient.removeListener(responseQueue);
+                }
+            } else {
+                reject(new Error('Aucune réponse reçue'));
             }
         });
 
-        rabbitMQClient.publishMessage('get_products_details', JSON.stringify({ productIds, correlationId, responseQueue }))
-            .catch(err => {
-                console.error('Erreur lors de la publication du message:', err);
-                clearTimeout(timeout);
-                rabbitMQClient.removeListener(responseQueue);
-                reject(new Error('Erreur lors de la publication du message'));
-            });
+        rabbitMQClient.publishMessage('get_products_details', JSON.stringify({ productIds, correlationId, responseQueue }));
     });
 }
 
