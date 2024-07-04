@@ -9,6 +9,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import winston from 'winston';
 import dotenv from 'dotenv';
+import promClient from 'prom-client';
 
 dotenv.config();
 
@@ -69,6 +70,14 @@ app.use(`${API_BASE_PATH}/orders`, validateApiKey, ordersRoutes);
 
 // Route pour la documentation Swagger
 app.use(`${API_BASE_PATH}/docs`, swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+
+// Configuration des métriques Prometheus
+const collectDefaultMetrics = promClient.collectDefaultMetrics;
+collectDefaultMetrics();
+app.get('/metrics', async (req: Request, res: Response) => {
+    res.set('Content-Type', promClient.register.contentType);
+    res.end(await promClient.register.metrics());
+});
 
 // Gestion des erreurs sécurisée
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
