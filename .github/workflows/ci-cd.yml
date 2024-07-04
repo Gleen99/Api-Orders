@@ -59,16 +59,3 @@ jobs:
         run: |
           sleep 30 # Wait for the server to start
           npm run test:newman
-
-      - name: Push to master
-        if: success()
-        run: |
-          git config --global user.email "ossamaukraine@gmail.com"
-          git config --global user.name "ossamaAfri"
-          git remote set-url origin git@github.com:Gleen99/Api-Orders.git
-          git checkout master
-          git add .
-          git commit -m "CI/CD pipeline changes"
-          git push origin master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
