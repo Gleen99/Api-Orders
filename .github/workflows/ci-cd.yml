@@ -57,5 +57,5 @@ jobs:
 
       - name: Run tests
         run: |
-          sleep 30 # Wait for the server to start
+          sleep 60 # wait time to ensure the server is fully started
           npm run test:newman
