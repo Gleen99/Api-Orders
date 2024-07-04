@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "ts-node server.tsx",
     "build": "tsc",
     "dev": "nodemon --watch src --ext ts,tsx --exec ts-node server.tsx",
     "build:watch": "tsc --watch"
