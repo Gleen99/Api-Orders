@@ -7,7 +7,8 @@
     "start": "ts-node server.tsx",
     "build": "tsc",
     "dev": "nodemon --watch src --ext ts,tsx --exec ts-node server.tsx",
-    "build:watch": "tsc --watch"
+    "build:watch": "tsc --watch",
+    "test:newman": "newman run tests/postman/api-orders.postman_collection.json"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.0",
+    "prom-client": "^15.1.3",
     "nodemon": "^3.1.3",
     "pg": "^8.12.0",
     "sequelize": "^6.37.3",
