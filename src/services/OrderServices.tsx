@@ -140,7 +140,7 @@ export async function getProductDetailsWithRetry(productIds: string[], maxRetrie
         }
 
         if (i < maxRetries - 1) {
-            const delay = Math.min(1000 * Math.pow(2, i), 10000); // Max delay of 10 seconds
+            const delay = Math.min(1000 * Math.pow(2, i), 5000); // Max delay of 10 seconds
             console.log(`Attente de ${delay}ms avant la prochaine tentative`);
             await new Promise(resolve => setTimeout(resolve, delay));
         }
