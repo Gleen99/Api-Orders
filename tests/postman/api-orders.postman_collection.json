@@ -9,7 +9,7 @@
       "name": "Récupérer toutes les commandes",
       "request": {
         "method": "GET",
-        "url": "http://localhost:18301/api/orders"
+        "url": "http://88.125.155.66:33082/api/v1/orders"
       }
     },
     {
@@ -17,12 +17,13 @@
       "request": {
         "method": "GET",
         "url": {
-          "raw": "http://localhost:18301/api/orders/{{orderId}}",
+          "raw": "http://88.125.155.66:33082/api/v1/orders/{{orderId}}",
           "host": [
-            "http://localhost:18301"
+            "http://88.125.155.66:33082"
           ],
           "path": [
             "api",
+            "v1",
             "orders",
             "{{orderId}}"
           ]
@@ -33,10 +34,10 @@
       "name": "Créer une commande",
       "request": {
         "method": "POST",
-        "url": "http://localhost:18301/api/orders",
+        "url": "http://88.125.155.66:33082/api/v1/orders",
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"customerId\": \"{{customerId}}\",\n    \"products\": [\n        {\n            \"productId\": \"{{productId}}\",\n            \"quantity\": 2\n        }\n    ],\n    \"status\": \"pending\"\n}",
+          "raw": "{\n    \"customerId\": \"12345\",\n    \"orderDate\": \"2023-01-01\",\n    \"items\": [\n        {\n            \"productId\": \"67890\",\n            \"quantity\": 2\n        }\n    ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -62,19 +63,20 @@
       "request": {
         "method": "PUT",
         "url": {
-          "raw": "http://localhost:18301/api/orders/{{orderId}}",
+          "raw": "http://88.125.155.66:33082/api/v1/orders/{{orderId}}",
           "host": [
-            "http://localhost:18301"
+            "http://88.125.155.66:33082"
           ],
           "path": [
             "api",
+            "v1",
             "orders",
             "{{orderId}}"
           ]
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"status\": \"shipped\",\n    \"products\": [\n        {\n            \"productId\": \"{{productId}}\",\n            \"quantity\": 3\n        }\n    ]\n}",
+          "raw": "{\n    \"customerId\": \"12345\",\n    \"orderDate\": \"2023-01-01\",\n    \"items\": [\n        {\n            \"productId\": \"67890\",\n            \"quantity\": 3\n        }\n    ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -88,32 +90,15 @@
       "request": {
         "method": "DELETE",
         "url": {
-          "raw": "http://localhost:18301/api/orders/{{orderId}}",
+          "raw": "http://88.125.155.66:33082/api/v1/orders/{{orderId}}",
           "host": [
-            "http://localhost:18301"
+            "http://88.125.155.66:33082"
           ],
           "path": [
             "api",
+            "v1",
             "orders",
             "{{orderId}}"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Récupérer les produits d'une commande",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:18301/api/orders/{{orderId}}/products",
-          "host": [
-            "http://localhost:18301"
-          ],
-          "path": [
-            "api",
-            "orders",
-            "{{orderId}}",
-            "products"
           ]
         }
       }
@@ -142,14 +127,6 @@
   "variable": [
     {
       "key": "orderId",
-      "value": ""
-    },
-    {
-      "key": "customerId",
-      "value": ""
-    },
-    {
-      "key": "productId",
       "value": ""
     }
   ]

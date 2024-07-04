@@ -7,7 +7,8 @@
     "start": "ts-node server.tsx",
     "build": "tsc",
     "dev": "nodemon --watch src --ext ts,tsx --exec ts-node server.tsx",
-    "build:watch": "tsc --watch"
+    "build:watch": "tsc --watch",
+    "test:newman": "newman run tests/api-orders.postman_collection.json"
   },
   "keywords": [],
   "author": "",
