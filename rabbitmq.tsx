@@ -121,7 +121,11 @@ class RabbitMQClient {
       this.connection = null;
     }
   }
-
+  async removeListener(queue: string) {
+    if (this.channel && this.consumers.has(queue)) {
+      this.consumers.delete(queue);
+    }
+  }
   isConnected(): boolean {
     return this.connection !== null && this.channel !== null && !this.connection.close;
   }

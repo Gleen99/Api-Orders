@@ -4,72 +4,42 @@ import { rabbitMQClient } from "../../rabbitmq";
 import amqp from "amqplib";
 import { OrderStatus } from "../enums/orderEnums";
 
-// Fonction pour récupérer les détails des commandes
-export async function fetchProductDetails(orderIds: string[]): Promise<IOrder[]> {
-    try {
-        const orders = await Order.find({ _id: { $in: orderIds } });
-        return orders;
-    } catch (error) {
-        console.error('Erreur lors de la récupération des commandes depuis la base de données:', error);
-        throw error;
-    }
-}
-
 // Fonction pour obtenir les détails des produits
 export async function getProductDetails(productIds: string[]): Promise<IProduct[]> {
     const correlationId = new Types.ObjectId().toString();
+    const responseQueue = `products_details_response_${correlationId}`;
+
     console.log(`Demande de détails pour les produits: ${productIds.join(', ')}`);
     console.log(`CorrelationId généré: ${correlationId}`);
 
     return new Promise<IProduct[]>((resolve, reject) => {
-        let consumerTag: string | undefined;
-
         const timeout = setTimeout(() => {
             console.log('Timeout atteint pour la requête de détails des produits');
-            cleanupConsumer();
+            rabbitMQClient.removeListener(responseQueue);
             reject(new Error('Timeout en attendant la réponse des détails des produits'));
         }, 30000);
 
-        const cleanupConsumer = () => {
-            clearTimeout(timeout);
-            if (consumerTag) {
-                rabbitMQClient.cancelConsume(consumerTag)
-                    .catch(err => console.error("Erreur lors de l'annulation de la consommation:", err));
-            }
-        };
-
-        rabbitMQClient.consumeMessage('products_details_response', async (msg: amqp.ConsumeMessage | null) => {
+        rabbitMQClient.consumeMessage(responseQueue, async (msg: amqp.ConsumeMessage | null) => {
             if (!msg) return;
 
-            console.log('Message reçu de RabbitMQ:', msg.content.toString());
-            console.log('CorrelationId reçu:', msg.properties.correlationId);
+            clearTimeout(timeout);
+            rabbitMQClient.removeListener(responseQueue);
 
-            if (msg.properties.correlationId === correlationId) {
-                cleanupConsumer();
-                try {
-                    const productsDetails: IProduct[] = JSON.parse(msg.content.toString());
-                    console.log('Détails des produits reçus:', productsDetails);
-                    resolve(productsDetails);
-                } catch (error) {
-                    console.error('Erreur lors du parsing des détails des produits:', error);
-                    reject(new Error('Erreur lors du parsing des détails des produits'));
-                }
-            } else {
-                console.log('Message ignoré car correlationId ne correspond pas');
+            try {
+                const productsDetails: IProduct[] = JSON.parse(msg.content.toString());
+                console.log('Détails des produits reçus:', productsDetails);
+                resolve(productsDetails);
+            } catch (error) {
+                console.error('Erreur lors du parsing des détails des produits:', error);
+                reject(new Error('Erreur lors du parsing des détails des produits'));
             }
-        }).then(tag => {
-            consumerTag = tag;
-            console.log('Consommateur configuré avec succès, tag:', tag);
-        }).catch(err => {
-            console.error('Erreur lors de la configuration du consommateur:', err);
-            reject(new Error('Erreur lors de la configuration du consommateur'));
         });
 
-        rabbitMQClient.publishMessage('get_products_details', JSON.stringify({ productIds, correlationId }), { correlationId })
-            .then(() => console.log('Message publié avec succès'))
+        rabbitMQClient.publishMessage('get_products_details', JSON.stringify({ productIds, correlationId, responseQueue }))
             .catch(err => {
                 console.error('Erreur lors de la publication du message:', err);
-                cleanupConsumer();
+                clearTimeout(timeout);
+                rabbitMQClient.removeListener(responseQueue);
                 reject(new Error('Erreur lors de la publication du message'));
             });
     });
@@ -127,74 +97,56 @@ export async function getProductDetailsWithRetry(productIds: string[], maxRetrie
     }
     throw new Error('Nombre maximum de tentatives atteint');
 }
-let customerOrdersConsumerConfigured = false;
-let customerProductsConsumerConfigured = false;
 
-export const initGetCustomerOrdersConsumer = () => {
-    if (customerOrdersConsumerConfigured) return;
-    customerOrdersConsumerConfigured = true;
-
-    rabbitMQClient.consumeMessage('get_customer_orders', async (msg) => {
+// Initialisation du consommateur pour getCustomerOrders
+export const initGetOrderDetailsConsumer = () => {
+    rabbitMQClient.consumeMessage('get_order_details', async (msg) => {
         if (!msg) return;
         try {
             const content = JSON.parse(msg.content.toString());
-            const { customerId, correlationId, responseQueue } = content;
+            const { customerId, orderId, productId, correlationId, responseQueue } = content;
 
-            console.log(`Récupération des commandes pour le client: ${customerId}`);
-            const orders = await Order.find({ customerId }).populate('products');
+            interface OrderQuery {
+                customerId: string;
+                _id?: Types.ObjectId;
+            }
 
-            console.log('Envoi de la réponse avec les détails des commandes');
-            const ordersJson = JSON.stringify(orders);
+            let query: OrderQuery = { customerId };
+            if (orderId) {
+                query._id = new Types.ObjectId(orderId);
+            }
 
-            await rabbitMQClient.publishMessage(
-                responseQueue, // Utilisation de la queue de réponse fournie
-                ordersJson,
-                { correlationId }
-            );
-            console.log(`Réponse envoyée sur la queue: ${responseQueue}`);
+            const orders = await Order.find(query).populate('products');
 
+            let response;
+            if (productId) {
+                response = orders.map(order => ({
+                    ...order.toObject(),
+                    products: order.products.filter(product => product._id.toString() === productId)
+                }));
+            } else {
+                response = orders;
+            }
+
+            await rabbitMQClient.publishMessage(responseQueue, JSON.stringify(response), { correlationId });
             await rabbitMQClient.ackMessage(msg);
         } catch (error) {
-            console.error('Erreur lors de la récupération des commandes:', error);
-            const errorMessage = JSON.stringify({ error: 'Erreur lors de la récupération des commandes' });
-            await rabbitMQClient.ackMessage(msg);
+            console.error('Erreur lors de la récupération des détails de la commande:', error);
+            await rabbitMQClient.nackMessage(msg, false, true);
         }
     });
 };
 
-export const initGetCustomerProductsConsumer = async (msg: amqp.ConsumeMessage | null) => {
-    if (!msg) return;
-    if (customerProductsConsumerConfigured) return;
-    customerProductsConsumerConfigured = true;
-
-    const content = JSON.parse(msg.content.toString());
-    const { customerId, correlationId } = content;
-    try {
-        console.log(`Récupération des commandes pour le client: ${customerId}`);
-        const orders = await Order.find({ customerId }).populate('products');
-        console.log('Envoi de la réponse avec les détails des orders');
-        await rabbitMQClient.publishMessage(
-            'products_details_response',
-            JSON.stringify(orders),
-            { correlationId }
-        );
-        await rabbitMQClient.ackMessage(msg);
-    } catch (error) {
-        console.error('Erreur lors de la récupération des commandes:', error);
-    }
-};
-
+// Fonction pour configurer le service des orders
 export async function setupOrderService() {
     try {
         await rabbitMQClient.connect();
         await rabbitMQClient.setup();
-        initGetCustomerOrdersConsumer();
         console.log('Configuration du consommateur pour get_customer_orders');
-        await rabbitMQClient.consumeMessage('get_customer_products', initGetCustomerProductsConsumer);
-        console.log('Configuration du consommateur pour get_customer_products');
-        console.log('Service des commandes configuré avec succès');
+        initGetOrderDetailsConsumer();
+        console.log('Service des orders configuré avec succès');
     } catch (error) {
-        console.error('Erreur lors de la configuration du service des commandes:', error);
+        console.error('Erreur lors de la configuration du service des orders:', error);
         throw error;
     }
 }
