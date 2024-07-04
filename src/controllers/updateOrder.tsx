@@ -5,10 +5,6 @@ import { addProductsToOrder, removeProductsFromOrder, updateOrderStatus } from "
 import {validateUpdateOrder} from "../validator/validationOrders";
 
 export const updateOrder = async (req: Request, res: Response) => {
-    const { error } = validateUpdateOrder(req.body);
-    if (error) {
-        return res.status(400).json({ message: error.details.map(d => d.message) });
-    }
 
     const { orderId } = req.params;
     const { productIds, action, status } = req.body;

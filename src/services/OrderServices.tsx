@@ -24,28 +24,63 @@ export async function getProductDetails(productIds: string[]): Promise<IProduct[
     console.log(`Demande de détails pour les produits: ${productIds.join(', ')}`);
 
     return new Promise<IProduct[]>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-            rabbitMQClient.removeListener(responseQueue);
+        let consumerTag: string;
+
+        const cleanup = () => {
+            clearTimeout(timeoutId);
+            if (consumerTag) {
+                rabbitMQClient.cancelConsume(consumerTag).catch(console.error);
+            }
+        };
+
+        const timeoutId = setTimeout(() => {
+            cleanup();
             reject(new Error('Timeout en attendant la réponse des détails des produits'));
-        }, 30000);
+        }, 5000);
 
         rabbitMQClient.consumeMessage(responseQueue, async (msg: amqp.ConsumeMessage | null) => {
-            clearTimeout(timeout);
-            if (msg) {
-                try {
-                    const productsDetails: IProduct[] = JSON.parse(msg.content.toString());
-                    resolve(productsDetails);
-                } catch (error) {
-                    reject(new Error('Erreur lors du parsing des détails des produits'));
-                } finally {
-                    rabbitMQClient.removeListener(responseQueue);
+            if (!msg) return;
+
+            try {
+                const content = JSON.parse(msg.content.toString());
+                if (content.error) {
+                    throw new Error(content.error);
                 }
+                const productsDetails: IProduct[] = content;
+                cleanup();
+                resolve(productsDetails);
+            } catch (error) {
+                cleanup();
+                if (error instanceof Error) {
+                    reject(new Error(`Erreur lors du traitement de la réponse: ${error.message}`));
+                } else {
+                    reject(new Error('Erreur inconnue lors du traitement de la réponse'));
+                }
+            } finally {
+                rabbitMQClient.ackMessage(msg).catch(console.error);
+            }
+        }).then(tag => {
+            consumerTag = tag;
+        }).catch(error => {
+            cleanup();
+            if (error instanceof Error) {
+                reject(new Error(`Erreur lors de la configuration du consommateur: ${error.message}`));
             } else {
-                reject(new Error('Aucune réponse reçue'));
+                reject(new Error('Erreur inconnue lors de la configuration du consommateur'));
             }
         });
 
-        rabbitMQClient.publishMessage('get_products_details', JSON.stringify({ productIds, correlationId, responseQueue }));
+        rabbitMQClient.publishMessage('get_products_details',
+            JSON.stringify({ productIds, responseQueue }),
+            { correlationId }
+        ).catch(error => {
+            cleanup();
+            if (error instanceof Error) {
+                reject(new Error(`Erreur lors de la publication du message: ${error.message}`));
+            } else {
+                reject(new Error('Erreur inconnue lors de la publication du message'));
+            }
+        });
     });
 }
 
@@ -90,17 +125,29 @@ export async function getProductDetailsWithRetry(productIds: string[], maxRetrie
     for (let i = 0; i < maxRetries; i++) {
         try {
             console.log(`Tentative ${i + 1} de récupération des détails des produits`);
-            return await getProductDetails(productIds);
+            const startTime = Date.now();
+            const products = await getProductDetails(productIds);
+            const endTime = Date.now();
+            console.log(`Temps de réponse: ${endTime - startTime}ms`);
+
+            if (products.length > 0) {
+                console.log(`Détails des produits récupérés avec succès à la tentative ${i + 1}`);
+                return products;
+            }
+            console.log(`Tentative ${i + 1}: Aucun produit trouvé, nouvelle tentative...`);
         } catch (error) {
             console.error(`Tentative ${i + 1} échouée:`, error);
-            if (i === maxRetries - 1) throw error;
-            const delay = Math.pow(2, i) * 1000; // Backoff exponentiel: 1s, 2s, 4s
+        }
+
+        if (i < maxRetries - 1) {
+            const delay = Math.min(1000 * Math.pow(2, i), 10000); // Max delay of 10 seconds
             console.log(`Attente de ${delay}ms avant la prochaine tentative`);
             await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
-    throw new Error('Nombre maximum de tentatives atteint');
+    throw new Error('Aucun produit trouvé avec les IDs fournis après plusieurs tentatives');
 }
+
 
 // Initialisation du consommateur pour getCustomerOrders
 export const initGetOrderDetailsConsumer = () => {
