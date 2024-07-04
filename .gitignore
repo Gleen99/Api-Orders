@@ -2,10 +2,9 @@
 
 # dependencies
 /node_modules
+/.idea
 
 # typescript
 *.tsbuildinfo
 combined.log
-/.idea
-.env
 error.log
