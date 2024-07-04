@@ -9,12 +9,6 @@
       "name": "Récupérer toutes les commandes",
       "request": {
         "method": "GET",
-        "header": [
-          {
-            "key": "X-API-Key",
-            "value": "key1"
-          }
-        ],
         "url": "http://88.125.155.66:33082/api/v1/orders"
       }
     },
@@ -22,12 +16,6 @@
       "name": "Récupérer une commande",
       "request": {
         "method": "GET",
-        "header": [
-          {
-            "key": "X-API-Key",
-            "value": "key1"
-          }
-        ],
         "url": {
           "raw": "http://88.125.155.66:33082/api/v1/orders/{{orderId}}",
           "host": [
@@ -46,12 +34,6 @@
       "name": "Créer une commande",
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "X-API-Key",
-            "value": "key1"
-          }
-        ],
         "url": "http://88.125.155.66:33082/api/v1/orders",
         "body": {
           "mode": "raw",
@@ -80,12 +62,6 @@
       "name": "Mettre à jour une commande",
       "request": {
         "method": "PUT",
-        "header": [
-          {
-            "key": "X-API-Key",
-            "value": "key1"
-          }
-        ],
         "url": {
           "raw": "http://88.125.155.66:33082/api/v1/orders/{{orderId}}",
           "host": [
@@ -113,12 +89,6 @@
       "name": "Supprimer une commande",
       "request": {
         "method": "DELETE",
-        "header": [
-          {
-            "key": "X-API-Key",
-            "value": "key1"
-          }
-        ],
         "url": {
           "raw": "http://88.125.155.66:33082/api/v1/orders/{{orderId}}",
           "host": [
