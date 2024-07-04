@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="692d1ce5-8c83-4702-9aea-17ef363de9bc" name="Changes" comment="jwt and swagger done">
+    <list default="true" id="692d1ce5-8c83-4702-9aea-17ef363de9bc" name="Changes" comment="conflit done">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/combined.log" beforeDir="false" afterPath="$PROJECT_DIR$/combined.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/tsconfig.tsbuildinfo" beforeDir="false" afterPath="$PROJECT_DIR$/dist/tsconfig.tsbuildinfo" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/error.log" beforeDir="false" afterPath="$PROJECT_DIR$/error.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/server.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/OrdersRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/OrdersRoutes.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/OrderServices.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/OrderServices.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swagger.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/swagger.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,7 +129,7 @@
       <workItem from="1719828000142" duration="35698000" />
       <workItem from="1719950191139" duration="7216000" />
       <workItem from="1720013208757" duration="5990000" />
-      <workItem from="1720054439620" duration="771000" />
+      <workItem from="1720054439620" duration="3031000" />
     </task>
     <task id="LOCAL-00001" summary="jwt and swagger done">
       <option name="closed" value="true" />
@@ -145,7 +139,23 @@
       <option name="project" value="LOCAL" />
       <updated>1720037734584</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="conflit done">
+      <option name="closed" value="true" />
+      <created>1720080752310</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1720080752310</updated>
+    </task>
+    <task id="LOCAL-00003" summary="conflit done">
+      <option name="closed" value="true" />
+      <created>1720080769574</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1720080769574</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -164,7 +174,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="jwt and swagger done" />
-    <option name="LAST_COMMIT_MESSAGE" value="jwt and swagger done" />
+    <MESSAGE value="conflit done" />
+    <option name="LAST_COMMIT_MESSAGE" value="conflit done" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

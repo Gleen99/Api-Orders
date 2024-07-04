@@ -127,10 +127,14 @@ export async function getProductDetailsWithRetry(productIds: string[], maxRetrie
     }
     throw new Error('Nombre maximum de tentatives atteint');
 }
+let customerOrdersConsumerConfigured = false;
+let customerProductsConsumerConfigured = false;
 
-// Consommateur RabbitMQ pour les commandes clients
 export const initGetCustomerOrdersConsumer = () => {
-    rabbitMQClient.consumeMessage('get_customer_produits', async (msg) => {
+    if (customerOrdersConsumerConfigured) return;
+    customerOrdersConsumerConfigured = true;
+
+    rabbitMQClient.consumeMessage('get_customer_orders', async (msg) => {
         if (!msg) return;
         try {
             const content = JSON.parse(msg.content.toString());
@@ -158,9 +162,11 @@ export const initGetCustomerOrdersConsumer = () => {
     });
 };
 
-// Consommateur RabbitMQ pour les produits clients
-export async function initGetCustomerProductsConsumer(msg: amqp.ConsumeMessage | null) {
+export const initGetCustomerProductsConsumer = async (msg: amqp.ConsumeMessage | null) => {
     if (!msg) return;
+    if (customerProductsConsumerConfigured) return;
+    customerProductsConsumerConfigured = true;
+
     const content = JSON.parse(msg.content.toString());
     const { customerId, correlationId } = content;
     try {
@@ -172,19 +178,19 @@ export async function initGetCustomerProductsConsumer(msg: amqp.ConsumeMessage |
             JSON.stringify(orders),
             { correlationId }
         );
+        await rabbitMQClient.ackMessage(msg);
     } catch (error) {
         console.error('Erreur lors de la récupération des commandes:', error);
     }
 };
 
-// Initialisation du service des commandes
 export async function setupOrderService() {
     try {
         await rabbitMQClient.connect();
         await rabbitMQClient.setup();
         initGetCustomerOrdersConsumer();
         console.log('Configuration du consommateur pour get_customer_orders');
-        await rabbitMQClient.consumeMessage('get_customer_orders', initGetCustomerProductsConsumer);
+        await rabbitMQClient.consumeMessage('get_customer_products', initGetCustomerProductsConsumer);
         console.log('Configuration du consommateur pour get_customer_products');
         console.log('Service des commandes configuré avec succès');
     } catch (error) {
