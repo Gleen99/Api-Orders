@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
 import Order, { IOrder, IProduct } from "../models/orders/OrdersModels";
-
-import { validateCreateOrderParams } from "../validator/validationOrders";
-import {getProductDetails} from "../services/OrderServices";
-import {rabbitMQClient} from "../../rabbitmq";
+import { getProductDetails } from "../services/OrderServices";
+import { rabbitMQClient } from "../../rabbitmq";
 
 export const createOrder = async (req: Request, res: Response) => {
     const { customerId, productIds } = req.params;
