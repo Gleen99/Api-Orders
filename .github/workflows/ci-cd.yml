@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
@@ -13,25 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mongodb:
-        image: mongo:latest
+      mongo:
+        image: mongo:4.4
         ports:
           - 27017:27017
-        options: >-
-          --health-cmd "mongosh --eval 'db.adminCommand({ ping: 1 })'" 
-          --health-interval 10s 
-          --health-timeout 5s 
-          --health-retries 5
-      rabbitmq:
-        image: rabbitmq:3-management
-        ports:
-          - 5672:5672
-          - 15672:15672
-        options: >-
-          --health-cmd "rabbitmqctl status"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -45,17 +30,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Start server
-        run: npm start &
-        env:
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          RABBITMQ_HOST: ${{ secrets.RABBITMQ_HOST }}
-          RABBITMQ_PORT: ${{ secrets.RABBITMQ_PORT }}
-          RABBITMQ_USERNAME: ${{ secrets.RABBITMQ_USERNAME }}
-          RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-
-      - name: Run tests
+      - name: Update har-validator and uuid
         run: |
-          sleep 60 # wait time to ensure the server is fully started
-          npm run test:newman
+          npm install har-validator@latest uuid@latest
+          npm audit fix --force
+
+      - name: Run Newman tests
+        run: |
+          npm install -g newman
+          newman run ./tests/postman/api-orders.postman_collection.json --env-var "X-API-Key=key1"

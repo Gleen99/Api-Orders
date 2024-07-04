@@ -2,14 +2,21 @@
   "info": {
     "name": "API Orders",
     "description": "Collection de requêtes pour tester l'API Orders",
-    "_postman_id": "YOUR_POSTMAN_COLLECTION_ID"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
       "name": "Récupérer toutes les commandes",
       "request": {
         "method": "GET",
-        "url": "http://88.125.155.66:33082/api/v1/orders"
+        "url": "http://88.125.155.66:33082/api/v1/orders",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "key1",
+            "type": "text"
+          }
+        ]
       }
     },
     {
@@ -18,16 +25,25 @@
         "method": "GET",
         "url": {
           "raw": "http://88.125.155.66:33082/api/v1/orders/{{orderId}}",
+          "protocol": "http",
           "host": [
-            "http://88.125.155.66:33082"
+            "88.125.155.66"
           ],
+          "port": "33082",
           "path": [
             "api",
             "v1",
             "orders",
             "{{orderId}}"
           ]
-        }
+        },
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "key1",
+            "type": "text"
+          }
+        ]
       }
     },
     {
@@ -35,6 +51,18 @@
       "request": {
         "method": "POST",
         "url": "http://88.125.155.66:33082/api/v1/orders",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "key1",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"customerId\": \"12345\",\n    \"orderDate\": \"2023-01-01\",\n    \"items\": [\n        {\n            \"productId\": \"67890\",\n            \"quantity\": 2\n        }\n    ]\n}",
@@ -64,9 +92,11 @@
         "method": "PUT",
         "url": {
           "raw": "http://88.125.155.66:33082/api/v1/orders/{{orderId}}",
+          "protocol": "http",
           "host": [
-            "http://88.125.155.66:33082"
+            "88.125.155.66"
           ],
+          "port": "33082",
           "path": [
             "api",
             "v1",
@@ -74,6 +104,18 @@
             "{{orderId}}"
           ]
         },
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "key1",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"customerId\": \"12345\",\n    \"orderDate\": \"2023-01-01\",\n    \"items\": [\n        {\n            \"productId\": \"67890\",\n            \"quantity\": 3\n        }\n    ]\n}",
@@ -91,16 +133,25 @@
         "method": "DELETE",
         "url": {
           "raw": "http://88.125.155.66:33082/api/v1/orders/{{orderId}}",
+          "protocol": "http",
           "host": [
-            "http://88.125.155.66:33082"
+            "88.125.155.66"
           ],
+          "port": "33082",
           "path": [
             "api",
             "v1",
             "orders",
             "{{orderId}}"
           ]
-        }
+        },
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "key1",
+            "type": "text"
+          }
+        ]
       }
     }
   ],
@@ -108,19 +159,15 @@
     {
       "listen": "prerequest",
       "script": {
-        "type": "text/javascript",
-        "exec": [
-          ""
-        ]
+        "exec": [],
+        "type": "text/javascript"
       }
     },
     {
       "listen": "test",
       "script": {
-        "type": "text/javascript",
-        "exec": [
-          ""
-        ]
+        "exec": [],
+        "type": "text/javascript"
       }
     }
   ],
